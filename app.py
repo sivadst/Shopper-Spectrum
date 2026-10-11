@@ -12,170 +12,310 @@ import joblib
 from streamlit_option_menu import option_menu
 
 # ==============================================================================
-# 1. PAGE CONFIGURATION & GLOBAL STYLING
+# 1. PAGE CONFIGURATION & MINIMALIST MATTE WHITE STYLING
 # ==============================================================================
 st.set_page_config(
     page_title="Shopper Spectrum",
-    page_icon="🛒",
+    page_icon="▫️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Glassmorphism, Modern Fonts, Gradient Buttons & Product Cards
+# Custom CSS for Pure Matte White, Swiss/Minimalist Monochrome Architecture
 CUSTOM_CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    color: #18181b;
 }
 
-/* Background gradient */
+/* Canvas & Background */
 .stApp {
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
-    color: #f8fafc;
+    background-color: #fafafa;
+    color: #18181b;
 }
 
-/* Hide Streamlit Header & Footer */
+/* Header & Footer cleanup */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
 
-/* Glassmorphism Card Style */
-.glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    color: #18181b !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
 }
 
-.glass-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.25);
-    border: 1px solid rgba(99, 102, 241, 0.4);
+p, span, label {
+    color: #27272a;
+}
+
+/* Matte White Card Component */
+.matte-card {
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.15s ease;
+}
+
+.matte-card:hover {
+    border-color: #d4d4d8;
 }
 
 /* Product Card Styling */
 .product-card {
-    background: rgba(30, 41, 59, 0.7);
-    backdrop-filter: blur(10px);
-    border-radius: 14px;
+    background: #ffffff;
+    border-radius: 8px;
     padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid #e4e4e7;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     margin-bottom: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 190px;
 }
 
 .product-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    border-color: #6366f1;
-    box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+    border-color: #18181b;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
 }
 
 .product-badge {
     display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #6366f1, #a855f7);
-    color: #ffffff;
-    margin-bottom: 12px;
+    background: #f4f4f5;
+    color: #52525b !important;
+    border: 1px solid #e4e4e7;
 }
 
 .similarity-badge {
     display: inline-block;
     float: right;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    background: rgba(16, 185, 129, 0.2);
-    color: #34d399;
-    border: 1px solid rgba(52, 211, 153, 0.3);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #f4f4f5;
+    color: #18181b !important;
+    border: 1px solid #d4d4d8;
 }
 
 .product-title {
-    font-size: 1.1rem;
+    font-size: 0.88rem;
     font-weight: 600;
-    color: #f1f5f9;
+    color: #18181b;
+    line-height: 1.45;
+    margin-top: 14px;
     margin-bottom: 8px;
+    word-break: break-word;
 }
 
-/* Custom Gradient Button */
+.product-desc {
+    font-size: 0.78rem;
+    color: #71717a;
+    line-height: 1.4;
+}
+
+/* Minimalist Matte White Button */
 .stButton > button {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%) !important;
-    color: white !important;
+    background-color: #ffffff !important;
+    color: #18181b !important;
     font-weight: 600 !important;
-    border: none !important;
-    border-radius: 12px !important;
-    padding: 12px 28px !important;
-    font-size: 1rem !important;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4) !important;
-    transition: all 0.3s ease !important;
+    border: 1.5px solid #18181b !important;
+    border-radius: 6px !important;
+    padding: 10px 20px !important;
+    font-size: 0.875rem !important;
+    letter-spacing: -0.01em !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.15s ease !important;
     width: 100%;
 }
 
 .stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6) !important;
+    background-color: #f4f4f5 !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Segment Cards */
-.segment-high-value {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.4));
-    border: 1px solid #10b981;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
+.stButton > button:active {
+    background-color: #e4e4e7 !important;
 }
 
-.segment-regular {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.4));
-    border: 1px solid #3b82f6;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
+/* Ensure text inside buttons is always crisp dark and 100% visible */
+.stButton > button,
+.stButton > button *,
+.stButton > button p,
+.stButton > button span,
+.stButton > button div {
+    color: #18181b !important;
+    font-weight: 600 !important;
 }
 
-.segment-occasional {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.4));
-    border: 1px solid #f59e0b;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
+.stButton > button:hover *,
+.stButton > button:hover p,
+.stButton > button:hover span,
+.stButton > button:hover div {
+    color: #000000 !important;
 }
 
-.segment-at-risk {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.4));
-    border: 1px solid #ef4444;
-    border-radius: 16px;
-    padding: 24px;
-    text-align: center;
+/* Minimalist Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #ffffff !important;
+    border-right: 1px solid #e4e4e7 !important;
 }
 
-/* Custom Scrollbar */
+[data-testid="stSidebar"] hr {
+    border-color: #f4f4f5 !important;
+    margin: 16px 0 !important;
+}
+
+/* Metric Display Cards */
+[data-testid="stMetric"] {
+    background-color: #ffffff !important;
+    border: 1px solid #e4e4e7 !important;
+    padding: 16px 20px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 0.75rem !important;
+    color: #71717a !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+[data-testid="stMetricValue"] {
+    font-size: 1.55rem !important;
+    color: #18181b !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+}
+
+/* Minimalist Tabs */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+    border-bottom: 1px solid #e4e4e7;
+    background-color: transparent;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background-color: transparent !important;
+    color: #71717a !important;
+    font-weight: 500 !important;
+    font-size: 0.85rem !important;
+    border-radius: 0 !important;
+    padding: 8px 16px !important;
+    border: none !important;
+}
+
+.stTabs [aria-selected="true"] {
+    color: #18181b !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #18181b !important;
+}
+
+/* Form Inputs & Selectbox */
+div[data-baseweb="select"] > div, div[data-baseweb="input"] > div {
+    background-color: #ffffff !important;
+    border-color: #e4e4e7 !important;
+    border-radius: 6px !important;
+    color: #18181b !important;
+}
+
+input {
+    background-color: #ffffff !important;
+    color: #18181b !important;
+}
+
+/* Minimalist Segment Card */
+.segment-panel {
+    background: #ffffff;
+    border: 1px solid #18181b;
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.segment-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #f4f4f5;
+    color: #18181b !important;
+    border: 1px solid #e4e4e7;
+    margin-bottom: 12px;
+}
+
+.segment-title {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #18181b;
+    margin: 0 0 8px 0;
+}
+
+.segment-desc {
+    color: #52525b;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin-bottom: 20px;
+}
+
+.segment-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid #f4f4f5;
+    padding-top: 16px;
+    gap: 12px;
+}
+
+.segment-metric-item {
+    font-size: 0.78rem;
+    color: #71717a;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.segment-metric-val {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #18181b;
+    margin-top: 2px;
+}
+
+/* Scrollbar Minimal */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
+    height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #fafafa;
 }
 ::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 4px;
+    background: #d4d4d8;
+    border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #a1a1aa;
 }
 </style>
 """
@@ -297,62 +437,81 @@ scaler, kmeans_model, similarity_matrix, rfm_df = load_models_and_matrices(df_da
 
 
 # ==============================================================================
-# 3. SIDEBAR NAVIGATION
+# 3. MINIMALIST MONOCHROME SIDEBAR NAVIGATION
 # ==============================================================================
 with st.sidebar:
-    st.markdown("### 🛒 **Shopper Spectrum**")
-    st.markdown("<p style='color:#94a3b8; font-size:0.85rem;'>Customer Intelligence & Recommendation Hub</p>", unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown("<h3 style='margin-bottom:2px; font-weight:700; letter-spacing:-0.03em;'>Shopper Spectrum</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#71717a; font-size:0.8rem; margin-top:0; margin-bottom:16px;'>Customer Analytics & Recommendations</p>", unsafe_allow_html=True)
 
     selected_menu = option_menu(
-        menu_title="Navigation",
+        menu_title=None,
         options=["Product Recommendations", "Customer Segmentation", "EDA & Analytics"],
-        icons=["bag-check-fill", "people-fill", "bar-chart-line-fill"],
-        menu_icon="compass",
+        icons=["box-seam", "person", "graph-up"],
+        menu_icon=None,
         default_index=0,
         styles={
-            "container": {"padding": "5px", "background-color": "rgba(15, 23, 42, 0.8)"},
-            "icon": {"color": "#a855f7", "font-size": "18px"},
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "4px", "--hover-color": "rgba(99, 102, 241, 0.2)"},
-            "nav-link-selected": {"background-color": "#6366f1", "font-weight": "600"},
+            "container": {"padding": "0px", "background-color": "transparent"},
+            "icon": {"color": "#71717a", "font-size": "15px"},
+            "nav-link": {
+                "font-size": "13.5px",
+                "font-weight": "400",
+                "text-align": "left",
+                "margin": "3px 0px",
+                "padding": "9px 12px",
+                "border-radius": "6px",
+                "color": "#3f3f46",
+                "--hover-color": "#f4f4f5",
+            },
+            "nav-link-selected": {
+                "background-color": "#18181b",
+                "color": "#ffffff",
+                "font-weight": "500",
+                "border-radius": "6px",
+            },
         }
     )
 
-    st.markdown("---")
-    st.markdown("<div style='text-align: center; color: #64748b; font-size: 0.8rem;'>Powered by Machine Learning & Collaborative Filtering</div>", unsafe_allow_html=True)
+    st.markdown("<hr style='border:0; border-top:1px solid #e4e4e7; margin: 24px 0;'>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='color: #a1a1aa; font-size: 0.72rem; line-height: 1.4;'>"
+        "RETAIL INTELLIGENCE PLATFORM<br>"
+        "Item-based filtering & RFM K-Means"
+        "</div>",
+        unsafe_allow_html=True
+    )
 
 
 # ==============================================================================
 # 4. MODULE 1: PRODUCT RECOMMENDATION ENGINE
 # ==============================================================================
 if selected_menu == "Product Recommendations":
-    st.markdown("## 🛍️ **Item-Based Recommendation Engine**")
-    st.markdown("Discover products similar to your selections powered by **Cosine Similarity Collaborative Filtering**.")
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<h2 style='margin-bottom:4px;'>Product Recommendations</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#71717a; font-size:0.9rem; margin-top:0;'>Item-to-item similarity modeling based on customer co-purchase transactions.</p>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 
     available_products = sorted(list(similarity_matrix.columns))
 
-    col_input, col_btn = st.columns([3, 1])
-    with col_input:
-        selected_prod = st.selectbox(
-            "🔍 **Select or Search for a Product:**",
-            options=available_products,
-            index=0,
-            help="Choose an item from the retail catalog to view top recommendations."
-        )
+    with st.container():
+        st.markdown("<div class='matte-card'>", unsafe_allow_html=True)
+        col_input, col_btn = st.columns([3, 1])
+        with col_input:
+            selected_prod = st.selectbox(
+                "Select Catalog Item",
+                options=available_products,
+                index=0,
+                help="Select an item to view top related recommendations."
+            )
 
-    with col_btn:
-        st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
-        get_rec_btn = st.button("✨ Get Recommendations")
+        with col_btn:
+            st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
+            get_rec_btn = st.button("Find Similar Products")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     if get_rec_btn or selected_prod:
-        st.markdown(f"### 🎯 Recommended Items for: *\"{selected_prod}\"*")
-        st.markdown("---")
+        st.markdown(f"<p style='font-size:0.85rem; color:#71717a; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:12px;'>Top 5 Matches for: <b style='color:#18181b;'>{selected_prod}</b></p>", unsafe_allow_html=True)
 
-        # Compute recommendations
         if selected_prod in similarity_matrix.columns:
             sim_scores = similarity_matrix[selected_prod].sort_values(ascending=False)
-            # Remove the product itself
             sim_scores = sim_scores[sim_scores.index != selected_prod].head(5)
 
             cols = st.columns(5)
@@ -361,174 +520,231 @@ if selected_menu == "Product Recommendations":
                 with cols[idx]:
                     card_html = f"""
                     <div class="product-card">
-                        <div class="product-badge">Top Match #{idx+1}</div>
-                        <div class="similarity-badge">{match_pct}% Match</div>
-                        <div style="clear: both; margin-top: 10px;"></div>
-                        <div class="product-title">{rec_prod}</div>
-                        <div style="margin-top: 12px; font-size: 0.8rem; color: #94a3b8;">
-                            Recommended for you based on co-purchase behavior.
+                        <div>
+                            <div>
+                                <span class="product-badge">Rank #{idx+1}</span>
+                                <span class="similarity-badge">{match_pct}%</span>
+                            </div>
+                            <div class="product-title">{rec_prod}</div>
+                        </div>
+                        <div class="product-desc">
+                            Co-purchased in customer transaction history.
                         </div>
                     </div>
                     """
                     st.markdown(card_html, unsafe_allow_html=True)
         else:
-            st.warning("Product not found in similarity matrix.")
+            st.warning("Selected product not found in similarity matrix.")
 
 
 # ==============================================================================
 # 5. MODULE 2: CUSTOMER SEGMENTATION (RFM)
 # ==============================================================================
 elif selected_menu == "Customer Segmentation":
-    st.markdown("## 👥 **RFM Customer Segmentation Predictor**")
-    st.markdown("Classify customer behavior using **Recency**, **Frequency**, and **Monetary** metrics powered by pre-trained **KMeans Clustering**.")
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<h2 style='margin-bottom:4px;'>Customer Segmentation</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#71717a; font-size:0.9rem; margin-top:0;'>RFM behavioral scoring evaluated against trained K-Means clusters.</p>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 
     col_inputs, col_output = st.columns([1, 1], gap="large")
 
     with col_inputs:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.markdown("#### 📥 **Input Customer Metrics**")
-        st.markdown("Provide purchasing behavior parameters below:")
+        st.markdown("<div class='matte-card'>", unsafe_allow_html=True)
+        st.markdown("<h4 style='margin-top:0; margin-bottom:4px;'>Input Metrics</h4>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#71717a; font-size:0.82rem; margin-bottom:16px;'>Configure customer transactional history below:</p>", unsafe_allow_html=True)
 
         recency_val = st.number_input(
-            "📅 **Recency (Days since last purchase):**",
+            "Recency (Days since last purchase)",
             min_value=0, max_value=730, value=15, step=1,
-            help="Number of days elapsed since the customer last made a transaction."
+            help="Days elapsed since the customer's most recent order."
         )
 
         frequency_val = st.number_input(
-            "🔄 **Frequency (Total purchase transactions):**",
+            "Frequency (Number of completed orders)",
             min_value=1, max_value=500, value=12, step=1,
-            help="Total count of unique purchases completed by the customer."
+            help="Total count of completed transactions."
         )
 
         monetary_val = st.number_input(
-            "💵 **Monetary ($ Total lifetime spend):**",
+            "Monetary (₹ Lifetime spend)",
             min_value=0.0, max_value=100000.0, value=1500.0, step=50.0,
-            help="Cumulative currency value spent across all transactions."
+            help="Cumulative currency value across all purchases."
         )
 
-        predict_btn = st.button("🔮 Predict Customer Segment")
+        predict_btn = st.button("Evaluate Customer Segment")
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col_output:
-        st.markdown("#### 🏷️ **Segmentation Result**")
+        st.markdown("<h4 style='margin-top:0; margin-bottom:8px;'>Classification Result</h4>", unsafe_allow_html=True)
 
         if predict_btn:
-            # Scale input
             input_df = pd.DataFrame([[recency_val, frequency_val, monetary_val]], columns=["Recency", "Frequency", "Monetary"])
             scaled_input = scaler.transform(input_df)
             cluster_id = kmeans_model.predict(scaled_input)[0]
 
-            # Rule-based segment naming heuristic based on RFM profile
             if monetary_val >= 1200 or (frequency_val >= 15 and recency_val <= 45):
                 seg_label = "High-Value"
-                icon = "👑"
-                css_class = "segment-high-value"
-                desc = "Regular, frequent, recent, and big spenders. Highest priority for loyalty rewards and VIP programs."
+                desc = "Regular, high-engagement customer with significant lifetime spending. Prioritize for dedicated account programs and priority release access."
             elif recency_val > 150 and frequency_val <= 3:
                 seg_label = "At-Risk"
-                icon = "⚠️"
-                css_class = "segment-at-risk"
-                desc = "Haven't purchased in a long time with low spend. Target with retention campaigns and win-back offers."
+                desc = "Extended inactivity window with low lifetime transaction volume. Suitable for win-back campaigns and re-engagement messaging."
             elif frequency_val <= 4 and monetary_val < 400:
                 seg_label = "Occasional"
-                icon = "⏱️"
-                css_class = "segment-occasional"
-                desc = "Rare, occasional buyers. Nudge with seasonal discounts and targeted marketing communications."
+                desc = "Infrequent buyer with low purchase density. Eligible for seasonal catalogs, category prompts, and introductory offers."
             else:
                 seg_label = "Regular"
-                icon = "⭐"
-                css_class = "segment-regular"
-                desc = "Steady purchasers with consistent engagement. Upsell with cross-category recommendations."
+                desc = "Steady repeat purchaser exhibiting predictable transaction intervals. Suitable for cross-category recommendations."
 
             result_card = f"""
-            <div class="{css_class}">
-                <div style="font-size: 3rem; margin-bottom: 8px;">{icon}</div>
-                <h2 style="margin: 0; color: #ffffff; font-weight: 700;">{seg_label} Customer</h2>
-                <p style="margin-top: 12px; font-size: 1rem; color: #f1f5f9; line-height: 1.5;">{desc}</p>
-                <hr style="border-color: rgba(255,255,255,0.2); margin: 16px 0;">
-                <div style="display: flex; justify-content: space-around; text-align: center;">
-                    <div><b>Recency:</b> {recency_val} days</div>
-                    <div><b>Frequency:</b> {frequency_val} txns</div>
-                    <div><b>Monetary:</b> ${monetary_val:,.2f}</div>
+            <div class="segment-panel">
+                <span class="segment-tag">{seg_label}</span>
+                <div class="segment-title">{seg_label} Segment</div>
+                <div class="segment-desc">{desc}</div>
+                <div class="segment-metrics">
+                    <div>
+                        <div class="segment-metric-item">Recency</div>
+                        <div class="segment-metric-val">{recency_val}d</div>
+                    </div>
+                    <div>
+                        <div class="segment-metric-item">Frequency</div>
+                        <div class="segment-metric-val">{frequency_val} orders</div>
+                    </div>
+                    <div>
+                        <div class="segment-metric-item">Monetary</div>
+                        <div class="segment-metric-val">₹{monetary_val:,.2f}</div>
+                    </div>
                 </div>
             </div>
             """
             st.markdown(result_card, unsafe_allow_html=True)
         else:
-            st.info("👈 Enter customer metrics on the left and click **Predict Customer Segment** to view insights.")
+            st.markdown(
+                """
+                <div class="matte-card" style="border-style: dashed; color: #71717a; text-align: center; padding: 48px 24px;">
+                    <div style="font-size: 0.88rem; color: #71717a;">Specify transaction metrics on the left and submit to view the segment evaluation.</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 
 # ==============================================================================
 # 6. MODULE 3: EDA & ANALYTICS DASHBOARD
 # ==============================================================================
 elif selected_menu == "EDA & Analytics":
-    st.markdown("## 📊 **Exploratory Data & Analytics Dashboard**")
-    st.markdown("Interactive visualizations exploring retail transaction patterns, country demographics, and RFM distributions.")
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<h2 style='margin-bottom:4px;'>Transaction Analytics</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#71717a; font-size:0.9rem; margin-top:0;'>Descriptive metrics, catalog distribution, and RFM feature spreads.</p>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
 
     # Metric Row
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Total Transactions", f"{len(df_data):,}")
     m2.metric("Unique Customers", f"{df_data['CustomerID'].nunique():,}")
-    m3.metric("Total Revenue", f"${df_data['TotalSpend'].sum():,.2f}")
-    m4.metric("Product Catalog Size", f"{df_data['Description'].nunique():,}")
+    m3.metric("Total Revenue", f"₹{df_data['TotalSpend'].sum():,.2f}")
+    m4.metric("Active Catalog Items", f"{df_data['Description'].nunique():,}")
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
 
     # Chart Row 1
     col_chart1, col_chart2 = st.columns(2)
 
     with col_chart1:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.markdown("### 🏆 Top 10 Best Selling Products")
+        st.markdown("<div class='matte-card'>", unsafe_allow_html=True)
+        st.markdown("<h4 style='margin-top:0; margin-bottom:16px;'>Top 10 Products by Volume</h4>", unsafe_allow_html=True)
         top_prod = df_data.groupby("Description")["Quantity"].sum().reset_index().sort_values(by="Quantity", ascending=False).head(10)
+        
         fig_top = px.bar(
             top_prod, x="Quantity", y="Description", orientation="h",
-            color="Quantity", color_continuous_scale="Viridis",
-            template="plotly_dark"
+            template="plotly_white",
+            color_discrete_sequence=["#18181b"]
         )
-        fig_top.update_layout(yaxis={"categoryorder": "total ascending"}, margin=dict(l=0, r=0, t=30, b=0))
+        fig_top.update_layout(
+            yaxis={"categoryorder": "total ascending", "title": ""},
+            xaxis={"title": "Quantity Sold", "gridcolor": "#f4f4f5"},
+            margin=dict(l=0, r=0, t=10, b=0),
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#ffffff",
+            font=dict(family="Inter, sans-serif", color="#18181b", size=11)
+        )
         st.plotly_chart(fig_top, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col_chart2:
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.markdown("### 🌍 Revenue Distribution by Country")
+        st.markdown("<div class='matte-card'>", unsafe_allow_html=True)
+        st.markdown("<h4 style='margin-top:0; margin-bottom:16px;'>Revenue Distribution by Country</h4>", unsafe_allow_html=True)
         country_rev = df_data.groupby("Country")["TotalSpend"].sum().reset_index().sort_values(by="TotalSpend", ascending=False)
+        
+        grayscale_palette = ["#18181b", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7"]
         fig_country = px.pie(
             country_rev, names="Country", values="TotalSpend",
-            hole=0.4, color_discrete_sequence=px.colors.qualitative.Pastel,
-            template="plotly_dark"
+            hole=0.45,
+            color_discrete_sequence=grayscale_palette,
+            template="plotly_white"
         )
-        fig_country.update_layout(margin=dict(l=0, r=0, t=30, b=0))
+        fig_country.update_layout(
+            margin=dict(l=0, r=0, t=10, b=0),
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#ffffff",
+            font=dict(family="Inter, sans-serif", color="#18181b", size=11)
+        )
         st.plotly_chart(fig_country, use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Chart Row 2: RFM Distributions
-    st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-    st.markdown("### 📈 RFM Metrics Distribution")
+    st.markdown("<div class='matte-card'>", unsafe_allow_html=True)
+    st.markdown("<h4 style='margin-top:0; margin-bottom:16px;'>RFM Feature Distributions</h4>", unsafe_allow_html=True)
     rfm_tab1, rfm_tab2, rfm_tab3 = st.tabs(["Recency", "Frequency", "Monetary"])
 
     with rfm_tab1:
-        fig_r = px.histogram(rfm_df, x="Recency", nbins=30, color_discrete_sequence=["#6366f1"], template="plotly_dark")
+        fig_r = px.histogram(
+            rfm_df, x="Recency", nbins=30,
+            template="plotly_white",
+            color_discrete_sequence=["#18181b"]
+        )
+        fig_r.update_layout(
+            xaxis={"gridcolor": "#f4f4f5", "title": "Recency (Days)"},
+            yaxis={"gridcolor": "#f4f4f5", "title": "Customer Count"},
+            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
+            margin=dict(l=0, r=0, t=10, b=0),
+            font=dict(family="Inter, sans-serif", color="#18181b")
+        )
         st.plotly_chart(fig_r, use_container_width=True)
 
     with rfm_tab2:
-        fig_f = px.histogram(rfm_df, x="Frequency", nbins=30, color_discrete_sequence=["#a855f7"], template="plotly_dark")
+        fig_f = px.histogram(
+            rfm_df, x="Frequency", nbins=30,
+            template="plotly_white",
+            color_discrete_sequence=["#27272a"]
+        )
+        fig_f.update_layout(
+            xaxis={"gridcolor": "#f4f4f5", "title": "Frequency (Orders)"},
+            yaxis={"gridcolor": "#f4f4f5", "title": "Customer Count"},
+            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
+            margin=dict(l=0, r=0, t=10, b=0),
+            font=dict(family="Inter, sans-serif", color="#18181b")
+        )
         st.plotly_chart(fig_f, use_container_width=True)
 
     with rfm_tab3:
-        fig_m = px.histogram(rfm_df, x="Monetary", nbins=30, color_discrete_sequence=["#10b981"], template="plotly_dark")
+        fig_m = px.histogram(
+            rfm_df, x="Monetary", nbins=30,
+            template="plotly_white",
+            color_discrete_sequence=["#3f3f46"]
+        )
+        fig_m.update_layout(
+            xaxis={"gridcolor": "#f4f4f5", "title": "Monetary (₹ Spend)"},
+            yaxis={"gridcolor": "#f4f4f5", "title": "Customer Count"},
+            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
+            margin=dict(l=0, r=0, t=10, b=0),
+            font=dict(family="Inter, sans-serif", color="#18181b")
+        )
         st.plotly_chart(fig_m, use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Chart Row 3: Clustering Evaluation
-    st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-    st.markdown("### 🧬 KMeans Clustering Evaluation Metrics")
+    st.markdown("<div class='matte-card'>", unsafe_allow_html=True)
+    st.markdown("<h4 style='margin-top:0; margin-bottom:16px;'>K-Means Cluster Optimization</h4>", unsafe_allow_html=True)
 
-    # Compute Elbow curve dynamically for evaluation plot
+    # Compute Elbow curve dynamically
     scaler_temp = StandardScaler()
     scaled_rfm_vals = scaler_temp.fit_transform(rfm_df[["Recency", "Frequency", "Monetary"]])
     inertias, silhouettes = [], []
@@ -542,14 +758,40 @@ elif selected_menu == "EDA & Analytics":
     col_e1, col_e2 = st.columns(2)
     with col_e1:
         fig_elbow = go.Figure()
-        fig_elbow.add_trace(go.Scatter(x=k_range, y=inertias, mode="lines+markers", marker=dict(size=8, color="#8b5cf6")))
-        fig_elbow.update_layout(title="Elbow Method (Inertia)", xaxis_title="k Clusters", yaxis_title="Inertia", template="plotly_dark")
+        fig_elbow.add_trace(go.Scatter(
+            x=k_range, y=inertias, mode="lines+markers",
+            line=dict(color="#18181b", width=1.5),
+            marker=dict(size=6, color="#18181b")
+        ))
+        fig_elbow.update_layout(
+            title=dict(text="Elbow Curve (Inertia)", font=dict(size=13, color="#18181b")),
+            xaxis=dict(title="k Clusters", gridcolor="#f4f4f5"),
+            yaxis=dict(title="Inertia", gridcolor="#f4f4f5"),
+            template="plotly_white",
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#ffffff",
+            margin=dict(l=0, r=0, t=30, b=0),
+            font=dict(family="Inter, sans-serif", color="#18181b")
+        )
         st.plotly_chart(fig_elbow, use_container_width=True)
 
     with col_e2:
         fig_sil = go.Figure()
-        fig_sil.add_trace(go.Scatter(x=k_range, y=silhouettes, mode="lines+markers", marker=dict(size=8, color="#34d399")))
-        fig_sil.update_layout(title="Silhouette Scores", xaxis_title="k Clusters", yaxis_title="Silhouette Score", template="plotly_dark")
+        fig_sil.add_trace(go.Scatter(
+            x=k_range, y=silhouettes, mode="lines+markers",
+            line=dict(color="#18181b", width=1.5),
+            marker=dict(size=6, color="#18181b")
+        ))
+        fig_sil.update_layout(
+            title=dict(text="Silhouette Coefficient", font=dict(size=13, color="#18181b")),
+            xaxis=dict(title="k Clusters", gridcolor="#f4f4f5"),
+            yaxis=dict(title="Score", gridcolor="#f4f4f5"),
+            template="plotly_white",
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#ffffff",
+            margin=dict(l=0, r=0, t=30, b=0),
+            font=dict(family="Inter, sans-serif", color="#18181b")
+        )
         st.plotly_chart(fig_sil, use_container_width=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
